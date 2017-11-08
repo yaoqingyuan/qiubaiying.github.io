@@ -4,7 +4,7 @@ title:      TensorFlow 使用入门
 subtitle:   千里之行始于足下
 date:       2017-11-08
 author:     QY
-header-img: img/sparrows-2759978_1920.jpg
+header-img: img/post_tensorflow_1.jpg
 catalog: true
 tags:
     - Tensorflow
