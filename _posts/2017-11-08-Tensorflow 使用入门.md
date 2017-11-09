@@ -18,14 +18,14 @@ tags:
 
 # Tensorflow 入门
 
-本篇是Tensorflow编程入门指南。在开始本教程前，[安装 TensorFlow](https://tensorflow.google.cn/install/index)。为了充分利用本指南，你需要知道以下知识：
+本篇是Tensorflow编程入门指南。在开始本教程前，请先[安装 TensorFlow](https://tensorflow.google.cn/install/index)。为了充分利用本指南，你需要知道以下知识：
 
-*   如何 Python 编程。
+*   如何使用 Python 编程。
 *   至少知道一点 Arrays 知识。
-*   最好能懂一点机器学习的知识。即使，你一点机器学习的知识都不懂也没有关系，这依然可以是你阅读的第一份指南。
+*   最好能懂一点机器学习的知识。但即使你一点机器学习的知识都不懂也没有关系，这依然可以是你阅读的第一份教程。
 
-TensorFlow 提供了多个 APIs。最低级别的 API--TensorFlow Core-- 提供完整的编程控制。我们建议TensorFlow Core 用于机器学习研究者和其他需要对模型进行精确控制的人员。更高级别的 APIs 建立在 TensorFlow Core之上。这些更高级别的 APIs 相比于 TensorFlow Core 也更加容易学习与使用。另外，更高级别的 API 使得不同用户之间的重复任务更容易和一致。像 tf.estimator 这样的高级 API 可以帮助您管理数据集，评价，培训和推理。
-本指南以 Tensorflow Core 开始。接下来，我们将演示如何在 tf.estimator 中运行相同的模型。理解 Tensorflow Core原理将在你使用更紧凑高级别 API 时能够更好的理解事情内部的工作原理。
+TensorFlow 提供了多个 APIs。最低级的 API——TensorFlow Core 提供完整的编程控制。我们建议机器学习研究者和其他需要对模型进行精确控制的人员来使用TensorFlow Core。更高级的 APIs 建立在 TensorFlow Core之上。这些更高级的 APIs 相比于 TensorFlow Core 也更加容易学习与使用。另外，更高级的 API 使得不同用户之间的重复任务更容易也更一致。像 tf.estimator 这样的高级 API 可以帮助您管理数据集，评价，训练和推理。
+本指南将以 Tensorflow Core 开始。接下来，我们将演示如何在 tf.estimator 中运行相同的模型。理解 Tensorflow Core 原理将在你使用更抽象的高级 API 时能够更好的理解事情内部的工作原理。
 
 # Tensors
 
@@ -53,8 +53,8 @@ import tensorflow as tf
 
 你可能会认为 Tensorflow Core 程序都是包含以下两个部分：
 
-1.  建立 computational graph。
-2.  运行 computational graph。
+1.  构建 computational graph。
+2.  执行 computational graph。
 
 计算图 **(computational graph)** 是一系列排列成节点图的 TensorFlow 操作。让我们来构建一个简单的计算图。每个节点将输入零个或多个张量并产生一个张量作为输出。每个类型的节点都是一个常量。类似于所有的 TensorFlow 常量，它没有输入，而只输出一个内部存储值。我们可以创建两个浮点型张量`node1` 和 `node2`：
 
@@ -70,7 +70,7 @@ print(node1, node2)
 Tensor("Const:0", shape=(), dtype=float32)  Tensor("Const_1:0", shape=(), dtype=float32)
 ```
 
-注意，打印节点不会像你预期的那样输出 `3.0` 和`4.0` 。相反，他们在评估时将会分别输出 3.0 和 4.0. 为了实际评估节点，我们必须在 **session** 内运行计算图。session 封装了 Tensorflow 运行时的控制和状态。
+注意，打印节点不会像你预期的那样输出 `3.0` 和`4.0` 。相反，他们在评估时将会分别输出 3.0 和 4.0. 为了实际评估节点，我们必须在会话 **(session)** 内运行计算图。session 封装了 Tensorflow 运行时的控制和状态。
 
 以下代码创建了一个 `Session` 对象并调用了 `run` 方法运行计算图来评估`node1` 和 `node2`。通过在 session 中运行计算图：
 
@@ -85,7 +85,7 @@ print(sess.run([node1, node2]))
 [3.0,  4.0]
 ```
 
-我们可以通过将张量节点与操作相结合来构建更复杂的计算(操作也是节点)。例如，我们可以增加两个常量节点并产生一个新的图形(graph):
+我们可以通过将张量节点与操作相结合来构建更复杂的计算(操作也是节点)。例如，我们可以增加两个常量节点并产生一个新的图(graph):
 
 ```python
 from future import print_function
@@ -103,11 +103,11 @@ sess.run(node3):  7.0
 
  
 
-Tensorflow 提供一个名为TensorBoard的有效的程序，它可以将计算图显示为图形。以下一个截屏显示了TensorBoard将图形可视化：
+Tensorflow 提供一个名为TensorBoard的有效的程序，它可以将计算图显示为图。以下一个截屏显示了TensorBoard将图可视化：
 
 ![TensorBoard screenshot](https://tensorflow.google.cn/images/getting_started_add.png)
 
-就目前来看，这张图并不特别有趣，因为它总是产生一个不变的结果。图形可以被参数化来接收称为占位符的外部输入。占位符是接下来提供值的变量。
+就目前来看，这张图并不特别有趣，因为它总是产生一个不变的结果。图可以被参数化来接收称为占位符的外部输入。占位符是接下来提供值的变量。
 
 ````python
 a = tf.placeholder(tf.float32) 
@@ -115,7 +115,7 @@ b = tf.placeholder(tf.float32)
 adder_node = a + b  # + provides a shortcut for tf.add(a, b)
 ````
 
- 这三行有点像一个函数(function)或者一个lambda，其中我们定义了两个参数(a和b)和一个操作。我们可以通过使用 [run 方法](https://tensorflow.google.cn/api_docs/python/tf/Session#run) 的 feed_dict 参数将多个输入的具体值提供给占位符来评估这个图形：
+ 这三行有点像一个函数(function)或者一个lambda，其中我们定义了两个参数(a和b)和一个操作。我们可以通过多个输入来评估这个图，这些输入是通过使用 [run 方法](https://tensorflow.google.cn/api_docs/python/tf/Session#run) 的 feed_dict 参数将具体值 feed 给占位符：
 
 ```python
 print(sess.run(adder_node,  {a:  3, b:  4.5}))  
@@ -129,14 +129,14 @@ print(sess.run(adder_node,  {a:  [1,  3], b:  [2,  4]}))
 [  3. 7.]
 ```
 
-在 TensorBoard，这图形看起来是这样的：
+在 TensorBoard，这图看起来是这样的：
 
 ![TensorBoard screenshot](https://tensorflow.google.cn/images/getting_started_adder.png)
 
-我们可以通过添加其他的操作来使得计算图形更加的复杂，例如，
+我们可以通过添加其他的操作来使得计算图更加的复杂，例如，
 
 ```python
-add_and_triple = adder_node *  3.  
+add_and_triple = adder_node * 3.  
 print(sess.run(add_and_triple,  {a:  3, b:  4.5}))
 ```
 
@@ -150,7 +150,7 @@ print(sess.run(add_and_triple,  {a:  3, b:  4.5}))
 
 ![TensorBoard screenshot](https://tensorflow.google.cn/images/getting_started_triple.png)
 
-在机器学习中，我们通常需要一个可以计算任意输入的模型，比如上面的模型。为了使得模型可训练，我们需要能够修改图形使得其具有相同的输入能得到新的输出。变量(**Variables**)允许我们添加可训练的参数到图形中。他们可以被构造成一个类型和初始值：
+在机器学习中，我们通常需要一个可以计算任意输入的模型，比如上面的模型。为了使得模型可训练，我们需要能够修改图使得其具有相同的输入能得到新的输出。变量(**Variables**)允许我们添加可训练的参数到图中。他们可以被构造成一个类型和初始值：
 
 ```python
 W = tf.Variable([.3], dtype=tf.float32) 
@@ -166,7 +166,7 @@ init = tf.global_variables_initializer()
 sess.run(init)
 ```
 
-实现`init` 是TensorFlow子图初始化所有的全局变量的一个句柄是很重要的。在我们调用`sess.run` 之前，变量是未初始化的。
+实现`init` 是TensorFlow子图初始化所有的全局变量的一个很重要的句柄。在我们调用`sess.run` 之前，变量是未初始化的。
 
 由于`x` 是一个占位符，我们可以同时为多个`x` 评估`linear_model` :
 
@@ -182,7 +182,7 @@ print(sess.run(linear_model,  {x:  [1,  2,  3,  4]}))
 
 我们创建了一个模型，但是我们不知道这个模型的好坏。为了评估训练数据的模型，我们需要一个`y` 占位符来提供期望值，并且我们需要写一个代价函数。
 
-代价函数用于衡量当前模型与预期值之间的差距有多远。我们将使用现行回归的标准代价模型，其中代价是当前模型与期望值之间的差距的平方的总和。`linear_model - y` 创建一个每个元素与其对应实例的误差的向量。我们调用`tf.square` 来计算这个误差的平方。然后我们统计所有的平方差来创建一个标量，通过调用`tf.reduce_sum` 来抽象所有例子的错误：
+代价函数用于衡量当前模型与预期值之间的差距有多远。我们将使用线性回归的标准代价模型，其中代价是当前模型与期望值之间的差距的平方的总和。`linear_model - y` 创建一个每个元素与其对应实例的误差的向量。我们调用`tf.square` 来计算这个误差的平方。然后我们统计所有的平方差来创建一个标量，通过调用`tf.reduce_sum` 来抽象所有例子的错误：
 
 ```python
 y = tf.placeholder(tf.float32) 
@@ -206,7 +206,7 @@ sess.run([fixW, fixb])
 print(sess.run(loss,  {x:  [1,  2,  3,  4], y:  [0,  -1,  -2,  -3]}))
 ```
 
-打印的损失值现在为零。
+结果损失值为零。
 
 ```python
 0.0
@@ -216,13 +216,14 @@ print(sess.run(loss,  {x:  [1,  2,  3,  4], y:  [0,  -1,  -2,  -3]}))
 
 ## tf.train API
 
-对于机器学习的完整讨论已超出了本教程的范围。但是Tensorflow提供的优化器**(optimizers)** 可以逐步改变每个变量来逐步使得代价函数达到最小值。最简单的优化器是梯度下降**(gradient descent)** 。它根据相关变量的倒是的减小的大小来修改每一个变量值。一般来说，手动计算符号导数是繁琐而又容易出错的。所以只要使用`tf.gradients` 来描述模型tensorflow就可以自动计算导数。简单来说，优化器通常会自动为你做这件事，例如：
+对于机器学习的完整讨论已超出了本教程的范围。但是Tensorflow提供的优化器**(optimizers)** 可以逐步改变每个变量来逐步使得代价函数达到最小值。最简单的优化器是梯度下降**(gradient descent)** 。它根据相对于该变量的损失导数的大小来修改每个变量。一般来说，手动计算符号导数是繁琐而又容易出错的。所以只要使用`tf.gradients` 来描述模型 tensorflow 就可以自动计算导数。简单来说，优化器通常会自动为你做这件事，例如：
 
 ```python
 optimizer = tf.train.GradientDescentOptimizer(0.01) 
 train = optimizer.minimize(loss)
+```
 
-
+```python
 sess.run(init)  # reset values to incorrect defaults.  
 for i in range(1000): 
   sess.run(train,  {x:  [1,  2,  3,  4], y:  [0,  -1,  -2,  -3]})  
@@ -235,11 +236,11 @@ print(sess.run([W, b]))
 [array([-0.9999969], dtype=float32), array([  0.99999082], dtype=float32)]
 ```
 
-现在我们已经完成了一个实际的机器学习了！虽然这个简单的线性模型不需要太多的tensorflow core代码，但是使用更复杂的模型和方法给我们的模型提供数据则需要更多的代码。因此tensorflow为常见的模型，结构和功能提供更高级别的抽象。我们将在下一节中学习如何使用这些抽象。
+现在我们已经完成了一个实际的机器学习了！虽然这个简单的线性模型不需要太多的 tensorflow core 代码，但是使用更复杂的模型和方法给我们的模型 feed 数据则需要更多的代码。因此 tensorflow 为常见的模型，结构和功能提供更高级的抽象。我们将在下一节中学习如何使用这些抽象。
 
 ### Complete program
 
-完成可训练的现行回归模型如下所示：
+完成可训练的线性回归模型如下所示：
 
 ```python
 import tensorflow as tf
@@ -279,13 +280,13 @@ print("W: %s b: %s loss: %s"%(curr_W, curr_b, curr_loss))
 W:  [-0.9999969] b:  [  0.99999082] loss:  5.69997e-11
 ```
 
- 注意，loss是一个非常小的数字(非常接近于零)。如果你运行这段代码，你的loss可能和上面的loss不完全一致，因为模型的初始化是使用伪随机值的。
+ 注意，loss 是一个非常小的数字(非常接近于零)。如果你运行这段代码，你的 loss 可能和上面的 loss 不完全一致，因为模型的初始化是使用伪随机值的。
 
-在tensorboard仍然可以可视化非常复杂的程序。![TensorBoard final model visualization](https://tensorflow.google.cn/images/getting_started_final.png)
+在 tensorboard 仍然可以可视化非常复杂的程序。![TensorBoard final model visualization](https://tensorflow.google.cn/images/getting_started_final.png)
 
 ## `tf.estimator`
 
-`tf.estimator` 是一个高级别的 TensorFlow 库，它简化了机器学习的机制：
+`tf.estimator` 是一个高级的 TensorFlow 库，它简化了机器学习的机制：
 
 *   运行训练循环
 *   运行评估循环
@@ -347,7 +348,7 @@ train metrics:  {'average_loss':  1.4833182e-08,  'global_step':  1000,  'loss':
 
 ### A custom model
 
-`tf.estimator` 不会限制你在预定义模型中。假设我们想要创建一个自定义的 TensorFlow 没有的模型。我们仍然可以使用 `tf.estimator` 来使用高度抽象的数据集，处理，训练。为了说明，我们将展示如何利用我们的知识使用低级别的 TensorFlow API 来实现相同的现行回归模型。
+`tf.estimator` 不会限制你在预定义模型中。假设我们想要创建一个自定义的 TensorFlow 没有的模型。我们仍然可以使用 `tf.estimator` 来使用高度抽象的数据集，处理，训练。为了说明，我们将展示如何利用我们的知识使用低级的 TensorFlow API 来实现相同的线性回归模型。
 
 为了定义一个使用`tf.estimator` 的自定义模型，我们需要使用 `tf.estimator.Estimator` 。实际上 `tf.estimator.LinearRegressor` 是 `tf.estimator.Estimator` 的一个子类。为了替代子类`Estimator` ，我们只需要提供 `Estimator` 的一个函数 `model_fn` 来告诉 `tf.estimator` 如何评估预测，训练步骤和损失。代码如下：
 
@@ -404,7 +405,7 @@ train metrics:  {'loss':  1.227995e-11,  'global_step':  1000}
 eval metrics:  {'loss':  0.01010036,  'global_step':  1000}
 ```
 
-注意自定义 `model_fn()` 函数的内容与我们从低级别 API 得到的手动训练循环是非常相似的。
+注意自定义 `model_fn()` 函数的内容与我们从低级 API 得到的手动训练循环是非常相似的。
 
 ## Next steps
 
