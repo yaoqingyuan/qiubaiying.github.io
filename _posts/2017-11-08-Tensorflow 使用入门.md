@@ -3,7 +3,7 @@ layout:     post
 title:      TensorFlow 使用入门
 subtitle:   千里之行始于足下
 date:       2017-11-08
-author:     QY
+author:     YQY
 header-img: img/post_tensorflow_1.jpg
 catalog: true
 tags:
