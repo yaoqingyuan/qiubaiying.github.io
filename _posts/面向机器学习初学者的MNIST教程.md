@@ -2,7 +2,7 @@
 layout:     post
 title:      面向机器学习初学者的 MNIST 教程
 subtitle:   千里之行始于足下
-date:       2017-11-08
+date:       2017-11-12
 author:     YQY
 header-img: img/post_tensorflow_2.jpg
 catalog: true
