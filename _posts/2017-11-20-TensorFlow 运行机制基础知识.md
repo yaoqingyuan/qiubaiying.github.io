@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      面向专家的 MNIST 教程
+title:      TensorFlow 运行机制基础知识
 subtitle:   千里之行始于足下
-date:       2017-11-16
+date:       2017-11-20
 author:     YQY
-header-img: img/post_tensorflow_3.jpg
+header-img: img/post_tensorflow_4.jpg
 catalog: true
 tags:
     - Tensorflow
