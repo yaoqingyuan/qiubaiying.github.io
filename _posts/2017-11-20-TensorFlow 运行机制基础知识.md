@@ -181,63 +181,63 @@ train_op = optimizer.minimize(loss, global_step=global_step)
 
 ## Train the Model
 
-Once the graph is built, it can be iteratively trained and evaluated in a loop controlled by the user code in `fully_connected_feed.py`.
+一旦图构建完成，就可以通过 `fully_connected_feed.py`文件中用户代码进行循环迭代训练和评估控制。
 
 ### The Graph
 
-At the top of the `run_training()` function is a python `with` command that indicates all of the built ops are to be associated with the default global [`tf.Graph`](https://tensorflow.google.cn/api_docs/python/tf/Graph) instance.
+在 `run_training()` 函数之前是一个 python 的 `with` 命令，它表明所有的构建操作都与默认的全局[`tf.Graph`](https://tensorflow.google.cn/api_docs/python/tf/Graph)实例关联起来。
 
 ```python
 with tf.Graph().as_default():
 ```
 
-A `tf.Graph` is a collection of ops that may be executed together as a group. Most TensorFlow uses will only need to rely on the single default graph.
+`tf.Graph`是一个操作集合，将作为一个组(group)一起被执行。大多数的 TensorFlow 使用都只需要依赖于一个默认的图的实例即可。
 
-More complicated uses with multiple graphs are possible, but beyond the scope of this simple tutorial.
+使用多个图实现更复杂的情况是可能的，但是这超出了本篇教程的范围。
 
 ### The Session
 
-Once all of the build preparation has been completed and all of the necessary ops generated, a [`tf.Session`](https://tensorflow.google.cn/api_docs/python/tf/Session) is created for running the graph.
+一旦所有的构建准备都完成，并且生成了所有的必须的操作，就可以创建 [`tf.Session`](https://tensorflow.google.cn/api_docs/python/tf/Session) 来执行图。
 
 ```python
 sess = tf.Session()
 ```
 
-Alternately, a `Session` may be generated into a `with` block for scoping:
+另外，也可以在 `with` 块中生成 `Session` 来限制作用域：
 
 ```python
 with tf.Session() as sess:
 ```
 
-The empty parameter to session indicates that this code will attach to (or create if not yet created) the default local session.
+无参 session 函数表明这段代码将连接(或者如果没有创建那就创建)默认的本地 session。
 
-Immediately after creating the session, all of the `tf.Variable` instances are initialized by calling [`tf.Session.run`](https://tensorflow.google.cn/api_docs/python/tf/Session#run) on their initialization op.
+在创建 session 后立即在它们的初始化操作中调用[`tf.Session.run`](https://tensorflow.google.cn/api_docs/python/tf/Session#run) 来初始化所有的`tf.Variable` 实例。
 
 ```python
 init = tf.global_variables_initializer()
 sess.run(init)
 ```
 
-The [`tf.Session.run`](https://tensorflow.google.cn/api_docs/python/tf/Session#run) method will run the complete subset of the graph that corresponds to the op(s) passed as parameters. In this first call, the `init` op is a [`tf.group`](https://tensorflow.google.cn/api_docs/python/tf/group) that contains only the initializers for the variables. None of the rest of the graph is run here; that happens in the training loop below.
+ [`tf.Session.run`](https://tensorflow.google.cn/api_docs/python/tf/Session#run) 方法将运行与作为参数传递的操作(op)对应的完整子图。在首次调用时， `init`操作是一个只包含变量初始化的[`tf.group`](https://tensorflow.google.cn/api_docs/python/tf/group) 。图的其他部分不会在这里执行，而只会在下面的循环训练里执行。
 
 ### Train Loop
 
-After initializing the variables with the session, training may begin.
+在 session 中初始化了所有的变量后，训练就可以开始了。
 
-The user code controls the training per step, and the simplest loop that can do useful training is:
+训练中的每一步都是由用户代码控制着，而有效训练的最简单循环如下：
 
 ```python
 for step in xrange(FLAGS.max_steps):
     sess.run(train_op)
 ```
 
-However, this tutorial is slightly more complicated in that it must also slice up the input data for each step to match the previously generated placeholders.
+然而，本教程会稍微复杂一点点，因为它必须在每个循环中将输入数据切片以匹配先前生成的占位符。
 
 #### Feed the Graph
 
-For each step, the code will generate a feed dictionary that will contain the set of examples on which to train for the step, keyed by the placeholder ops they represent.
+对于每一步，代码将生成一个 反馈字典(feed dictionary)，其中包含该步骤训练的样本，例子的键(key)就是它们代表的占位符操作。
 
-In the `fill_feed_dict()` function, the given `DataSet` is queried for its next `batch_size` set of images and labels, and tensors matching the placeholders are filled containing the next images and labels.
+在`fill_feed_dict()`函数中，查询给定的`DataSet`的下一批`batch_size`的图像和标签，与占位符相匹配的张量包含了下一批的图像和标签。
 
 ```python
 images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size,
