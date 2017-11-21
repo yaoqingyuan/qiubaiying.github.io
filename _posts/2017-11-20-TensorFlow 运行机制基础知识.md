@@ -306,19 +306,19 @@ summary_writer.add_summary(summary_str, step)
 
 #### Save a Checkpoint
 
-In order to emit a checkpoint file that may be used to later restore a model for further training or evaluation, we instantiate a [`tf.train.Saver`](https://tensorflow.google.cn/api_docs/python/tf/train/Saver).
+为了后续恢复模型以便将来能进一步的训练或评估而发布一个检查点文件(checkpoint file)，我们实例化 [`tf.train.Saver`](https://tensorflow.google.cn/api_docs/python/tf/train/Saver)。
 
 ```python
 saver = tf.train.Saver()
 ```
 
-In the training loop, the [`tf.train.Saver.save`](https://tensorflow.google.cn/api_docs/python/tf/train/Saver#save) method will periodically be called to write a checkpoint file to the training directory with the current values of all the trainable variables.
+在循环训练中，周期性的调用 [`tf.train.Saver.save`](https://tensorflow.google.cn/api_docs/python/tf/train/Saver#save) 方法写入检查点文件到训练目录下，其中包含了所有可训练变量的当前值。
 
 ```python
 saver.save(sess, FLAGS.train_dir, global_step=step)
 ```
 
-At some later point in the future, training might be resumed by using the [`tf.train.Saver.restore`](https://tensorflow.google.cn/api_docs/python/tf/train/Saver#restore) method to reload the model parameters.
+在未来的某个时候，可以通过使用 [`tf.train.Saver.restore`](https://tensorflow.google.cn/api_docs/python/tf/train/Saver#restore) 方法来重新载入模型参数以恢复训练。
 
 ```python
 saver.restore(sess, FLAGS.train_dir)
@@ -326,7 +326,7 @@ saver.restore(sess, FLAGS.train_dir)
 
 ## Evaluate the Model
 
-Every thousand steps, the code will attempt to evaluate the model against both the training and test datasets. The `do_eval()` function is called thrice, for the training, validation, and test datasets.
+每循环一千次，代码将尝试使用训练数据和测试数据来评估模型。 `do_eval()` 方法将被调用三次，分别使用训练数据集，验证数据集和测试数据集。
 
 ```python
 print('Training Data Eval:')
@@ -349,17 +349,17 @@ do_eval(sess,
         data_sets.test)
 ```
 
-> Note that more complicated usage would usually sequester the `data_sets.test` to only be checked after significant amounts of hyperparameter tuning. For the sake of a simple little MNIST problem, however, we evaluate against all of the data.
+> 注意更复杂的用法是隔离 `data_sets.test` ，直到大量的超参数(hyperparameter )调整之后才被检查。但对于一个简单的 MNIST 问题，这里我们一次性评估了所有的数据。
 
 ### Build the Eval Graph
 
-Before entering the training loop, the Eval op should have been built by calling the `evaluation()` function from `mnist.py` with the same logits/labels parameters as the `loss()` function.
+在进入循环训练之前，通过从`mnist.py`文件中调用`evaluation()`函数来构建评估操作，其中使用了和`loss()`函数相同的 logist/labels 参数。
 
 ```python
 eval_correct = mnist.evaluation(logits, labels_placeholder)
 ```
 
-The `evaluation()` function simply generates a [`tf.nn.in_top_k`](https://tensorflow.google.cn/api_docs/python/tf/nn/in_top_k) op that can automatically score each model output as correct if the true label can be found in the K most-likely predictions. In this case, we set the value of K to 1 to only consider a prediction correct if it is for the true label.
+`evaluation()` 函数会简单的生成一个 [`tf.nn.in_top_k`](https://tensorflow.google.cn/api_docs/python/tf/nn/in_top_k) 操作，如果在 K 个最可能的预测中发现了真的标签，那么它将自动给每个模型输出标记为正确。在这里我们将设置 K 为1，因为我们只考虑只有在标签为真的时候的预测才为正确。
 
 ```python
 eval_correct = tf.nn.in_top_k(logits, labels, 1)
@@ -367,7 +367,7 @@ eval_correct = tf.nn.in_top_k(logits, labels, 1)
 
 ### Eval Output
 
-One can then create a loop for filling a `feed_dict` and calling `sess.run()` against the `eval_correct` op to evaluate the model on the given dataset.
+然后我们可以创建一个循环，并往里面添加 `feed_dict` ，并调用 `sess.run()` 函数时传入 `eval_correct` 操作以便对给定的数据集评估模型性能。
 
 ```python
 for step in xrange(steps_per_epoch):
@@ -377,7 +377,7 @@ for step in xrange(steps_per_epoch):
     true_count += sess.run(eval_correct, feed_dict=feed_dict)
 ```
 
-The `true_count` variable simply accumulates all of the predictions that the `in_top_k` op has determined to be correct. From there, the precision may be calculated from simply dividing by the total number of examples.
+`true_count` 变量是 `in_top_k` 操作中被认为是正确的所有预测的简单叠加，这样，精度的计算可以是简单地将所有正确的预测的样本总数除以所有的样本的总数得到。
 
 ```python
 precision = true_count / num_examples
