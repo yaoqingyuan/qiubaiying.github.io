@@ -244,7 +244,7 @@ images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size,
                                                FLAGS.fake_data)
 ```
 
-A python dictionary object is then generated with the placeholders as keys and the representative feed tensors as values.
+生成一个 python 字典对象，其中占位符为 键(key)，代表的反馈张量(feed tensor)为值(value)。
 
 ```python
 feed_dict = {
@@ -253,11 +253,11 @@ feed_dict = {
 }
 ```
 
-This is passed into the `sess.run()` function's `feed_dict` parameter to provide the input examples for this step of training.
+这个字典对象将传递给 `sess.run()` 函数的`feed_dict` 参数，为这一步的训练提供输入样本。
 
 #### Check the Status
 
-The code specifies two values to fetch in its run call: `[train_op, loss]`.
+该代码指定了两个要在其运行调用中获取的值： `[train_op, loss]`。
 
 ```python
 for step in xrange(FLAGS.max_steps):
@@ -268,9 +268,9 @@ for step in xrange(FLAGS.max_steps):
                              feed_dict=feed_dict)
 ```
 
-Because there are two values to fetch, `sess.run()` returns a tuple with two items. Each `Tensor` in the list of values to fetch corresponds to a numpy array in the returned tuple, filled with the value of that tensor during this step of training. Since `train_op` is an `Operation` with no output value, the corresponding element in the returned tuple is `None` and, thus, discarded. However, the value of the `loss` tensor may become NaN if the model diverges during training, so we capture this value for logging.
+因为需要获取这两个值，`sess.run()` 返回一个两个元素的元组。要获取的值列表中的每个 `Tensor`对应着返回元组中的一个 numpy 数组(array)，而该数组包含了这一步训练所需要的张量的值。由于`train_op`是一个没有输出值的 `Operation` ，返回的元组中对应的元素是 `None` ，因此 train_op 会被丢弃。然后如果在训练期间模型发散导致`loss`张量的值可能编程 NaN，因此我们要获取这个值并记录下来。
 
-Assuming that the training runs fine without NaNs, the training loop also prints a simple status text every 100 steps to let the user know the state of training.
+假设训练运行的很好，没有产生 NaN值，训练循环也将每 100 次打印一个简单的状态来让我们知道训练的状态。
 
 ```python
 if step % 100 == 0:
@@ -279,30 +279,30 @@ if step % 100 == 0:
 
 #### Visualize the Status
 
-In order to emit the events files used by [TensorBoard](https://tensorflow.google.cn/get_started/summaries_and_tensorboard), all of the summaries (in this case, only one) are collected into a single Tensor during the graph building phase.
+为了发布由 [TensorBoard 使用的事件文件，在图的构建阶段，所有的总结信息(summary)(在这里只有一个)被收集进一个张量里。
 
 ```python
 summary = tf.summary.merge_all()
 ```
 
-And then after the session is created, a [`tf.summary.FileWriter`](https://tensorflow.google.cn/api_docs/python/tf/summary/FileWriter) may be instantiated to write the events files, which contain both the graph itself and the values of the summaries.
+在创建好会话(session)之后，实例化一个 [`tf.summary.FileWriter`](https://tensorflow.google.cn/api_docs/python/tf/summary/FileWriter) 来写事件文件，其中包含了图本身和总结信息的值。
 
 ```python
 summary_writer = tf.summary.FileWriter(FLAGS.train_dir, sess.graph)
 ```
 
-Lastly, the events file will be updated with new summary values every time the `summary` is evaluated and the output passed to the writer's `add_summary()` function.
+最后，每次`summary`评估的新的总结信息值都将更新事件文件，并输出到事件文件读写器(writer)的 `add_summary()` 函数中。
 
 ```python
 summary_str = sess.run(summary, feed_dict=feed_dict)
 summary_writer.add_summary(summary_str, step)
 ```
 
-When the events files are written, TensorBoard may be run against the training folder to display the values from the summaries.
+当事件文件被写入时，在训练文件夹内 TensorBoard 将会运行来显示汇总信息的值。
 
 ![MNIST TensorBoard](https://tensorflow.google.cn/images/mnist_tensorboard.png)
 
-**NOTE**: For more info about how to build and run Tensorboard, please see the accompanying tutorial [Tensorboard: Visualizing Learning](https://tensorflow.google.cn/get_started/summaries_and_tensorboard).
+**注意**：欲了解更多如何构建和运行 Tensorboard，请参考随后的 [Tensorboard: Visualizing Learning](https://tensorflow.google.cn/get_started/summaries_and_tensorboard) 教程。
 
 #### Save a Checkpoint
 
